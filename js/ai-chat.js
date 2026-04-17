@@ -58,7 +58,7 @@ async function sendAIMessage() {
     chatBox.appendChild(typingContainer);
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    const apiKey = 'FV4YYfHgKDuG67Lh2f7ysYOLYLF3bydGWCz2m72bqyUhUeKyju2vQ_ksg'.split('').reverse().join('');
+    // API kaliti endi backendda (api/chat.js) saqlanadi
     const lang = typeof currentLang !== 'undefined' ? currentLang : 'uz';
     
     let systemPrompt = "Siz maktab o'quvchilari uchun mehribon AI Psixologsiz. O'zbek tilida, qisqa va dalda beruvchi javoblar qaytaring.";
@@ -66,10 +66,9 @@ async function sendAIMessage() {
     if (lang === 'en') systemPrompt = "You are a kind AI Psychologist for school students. Respond in English, keep answers concise and empathetic.";
 
     try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -88,7 +87,14 @@ async function sendAIMessage() {
             throw new Error(`API error: ${response.status}`);
         }
         const data = await response.json();
-        const botReply = data.choices[0].message.content;
+        
+        let botReply = "Xatolik yuz berdi.";
+        if (data && data.choices && data.choices.length > 0) {
+            botReply = data.choices[0].message.content;
+        } else if (data && data.error) {
+            botReply = `Xatolik: ${data.error.message || data.error}`;
+        }
+        
         appendChatMessage('bot', botReply);
 
     } catch (error) {
