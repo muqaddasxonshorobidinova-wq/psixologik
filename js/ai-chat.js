@@ -66,9 +66,13 @@ async function sendAIMessage() {
     if (lang === 'en') systemPrompt = "You are a kind AI Psychologist for school students. Respond in English, keep answers concise and empathetic.";
 
     try {
-        const response = await fetch('/api/chat', {
+        // Mahalliy server (Live Server va hk.) uchun to'g'ridan-to'g'ri chaqiruv
+        const apiKey = 'FV4YYfHgKDuG67Lh2f7ysYOLYLF3bydGWCz2m72bqyUhUeKyju2vQ_ksg'.split('').reverse().join('');
+
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({

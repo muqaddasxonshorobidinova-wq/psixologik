@@ -55,7 +55,7 @@ function renderStudentsList(lang) {
 window.openPortrait = function(index) {
     const st = generatedStudents[index];
     if(!st) return;
-    const lang = window.currentLang || 'uz';
+    const lang = window.currentLang || (typeof currentLang !== 'undefined' ? currentLang : 'uz');
     
     document.getElementById('portrait-name').innerText = st.name;
     document.getElementById('portrait-class').innerText = st.studentClass;
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // AI Analysis Generator
 window.generateAIAnalysis = function() {
-    let lang = window.currentLang || 'uz';
+    let lang = window.currentLang || (typeof currentLang !== 'undefined' ? currentLang : 'uz');
     if(!generatedStudents || generatedStudents.length === 0) return;
     
     let total = generatedStudents.length;

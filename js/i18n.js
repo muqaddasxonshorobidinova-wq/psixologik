@@ -302,10 +302,12 @@ const translations = {
     }
 };
 
+window.currentLang = 'uz';
 let currentLang = 'uz';
 
 function updateLanguage(lang) {
     currentLang = lang;
+    window.currentLang = lang;
     document.documentElement.lang = lang;
     const elements = document.querySelectorAll('[data-i18n]');
     elements.forEach(el => {
