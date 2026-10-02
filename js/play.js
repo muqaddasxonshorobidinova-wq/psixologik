@@ -13,6 +13,9 @@ let matchTimer = 0;
 let timerIntervalId = null;
 let activeContainer = null;
 
+let activeAudioCtx = null;
+let soundNodes = [];
+
 window.startPlay = function(type) {
     document.getElementById('play-hub-grid').style.display = 'none';
     document.getElementById('play-active-container').style.display = 'block';
@@ -23,6 +26,7 @@ window.startPlay = function(type) {
     else if(type === 'color') initColorGame();
     else if(type === 'breathe') initBreatheGame();
     else if(type === 'draw') initDrawGame();
+    else if(type === 'sound') initSoundTherapy();
 };
 
 window.closePlay = function() {
@@ -32,6 +36,7 @@ window.closePlay = function() {
     clearInterval(timerIntervalId);
     if(window.breatheInterval) clearInterval(window.breatheInterval);
     if(window.breatheTimeout) clearTimeout(window.breatheTimeout);
+    stopSoundTherapy();
 };
 
 /* =========================================
@@ -199,32 +204,28 @@ function initBreatheGame() {
     let l_out = currentLang==='uz'?"Chiqaring (8s)":currentLang==='ru'?"Выдох (8с)":"Breathe out (8s)";
 
     function runCycle() {
-        // Breathe IN (4s)
         text.innerText = l_in;
         circle.style.transition = 'transform 4s cubic-bezier(0.4, 0, 0.2, 1)';
         circle.style.transform = 'scale(1.5)';
         circle.style.background = 'rgba(16, 185, 129, 0.4)';
         
         window.breatheTimeout = setTimeout(() => {
-            // Hold (7s)
             text.innerText = l_hold;
             circle.style.transition = 'background 7s linear';
             circle.style.background = 'rgba(245, 158, 11, 0.4)';
             
             window.breatheTimeout = setTimeout(() => {
-                // Breathe OUT (8s)
                 text.innerText = l_out;
                 circle.style.transition = 'transform 8s cubic-bezier(0.4, 0, 0.2, 1), background 8s linear';
                 circle.style.transform = 'scale(1)';
                 circle.style.background = 'rgba(59, 130, 246, 0.4)';
-                
             }, 7000);
         }, 4000);
     }
     
     setTimeout(() => {
         runCycle();
-        window.breatheInterval = setInterval(runCycle, 19000); // 4+7+8 = 19s
+        window.breatheInterval = setInterval(runCycle, 19000);
     }, 2000);
 }
 
@@ -245,8 +246,9 @@ function initDrawGame() {
                 <div class="color-swatch" style="background:#8b5cf6" data-color="#8b5cf6"></div>
                 <div class="color-swatch" style="background:#ffffff; border: 1px solid #ccc;" data-color="#ffffff" title="Eraser"></div>
             </div>
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <button class="btn-primary" onclick="clearCanvas()"><i class="fas fa-trash"></i> Tozalash</button>
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn-primary" onclick="clearCanvas()"><i class="fas fa-trash"></i> ${currentLang==='uz'?"Tozalash":currentLang==='ru'?"Очистить":"Clear"}</button>
+                <button class="btn-primary" onclick="downloadCanvas()"><i class="fas fa-download"></i> ${currentLang==='uz'?"Saqlab Olish":currentLang==='ru'?"Скачать":"Download"}</button>
             </div>
         </div>
     `;
@@ -256,7 +258,6 @@ function initDrawGame() {
         if(!canvas) return;
         const ctx = canvas.getContext('2d');
         
-        // Handle precise scaling for CSS width
         const rect = canvas.getBoundingClientRect();
         canvas.width = rect.width;
         
@@ -287,7 +288,7 @@ function initDrawGame() {
             ctx.moveTo(lastX, lastY);
             ctx.lineTo(currentX, currentY);
             ctx.strokeStyle = currentColor;
-            ctx.lineWidth = currentColor === '#ffffff' ? 15 : 4; // Eraser is wider
+            ctx.lineWidth = currentColor === '#ffffff' ? 15 : 4;
             ctx.lineCap = 'round';
             ctx.stroke();
 
@@ -316,5 +317,133 @@ function initDrawGame() {
         window.clearCanvas = function() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         };
+        window.downloadCanvas = function() {
+            const link = document.createElement('a');
+            link.download = 'art-therapy-drawing.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        };
     }, 100);
+}
+
+/* =========================================
+   5. SOUND THERAPY (WEB AUDIO API)
+   ========================================= */
+function initSoundTherapy() {
+    activeContainer.innerHTML = `
+        <div class="glass-panel p-2 mx-auto text-center" style="max-width: 650px; background: var(--surface-color);">
+            <i class="fas fa-headphones-alt" style="font-size: 3.5rem; color: #a855f7; margin-bottom: 1rem;"></i>
+            <h3 style="color: var(--heading-color); font-size: 1.8rem; margin-bottom: 0.5rem;">${currentLang==='uz'?"Relaks Ovozli Terapiya":currentLang==='ru'?"Звуковая терапия":"Relax Sound Therapy"}</h3>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">${currentLang==='uz'?"Tinchlantiruvchi biogenik tovushlar va 432Hz chastotasi orqali miyani dam oldiring.":currentLang==='ru'?"Расслабьтесь с помощью биогенных звуков и частоты 432 Гц.":"Relax your mind with ambient sounds and 432Hz relaxation tones."}</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                <button class="btn-primary sound-mode-btn active" data-type="rain" onclick="playRelaxSound('rain')"><i class="fas fa-cloud-rain" style="color: #3b82f6;"></i><br>${currentLang==='uz'?"Yomg'ir":currentLang==='ru'?"Дождь":"Rain"}</button>
+                <button class="btn-primary sound-mode-btn" data-type="binaural" onclick="playRelaxSound('binaural')"><i class="fas fa-wave-square" style="color: #a855f7;"></i><br>432 Hz Tone</button>
+                <button class="btn-primary sound-mode-btn" data-type="waves" onclick="playRelaxSound('waves')"><i class="fas fa-water" style="color: #10b981;"></i><br>${currentLang==='uz'?"Dengiz":currentLang==='ru'?"Море":"Ocean"}</button>
+            </div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem;">
+                <button class="btn-large" id="sound-toggle-btn" onclick="toggleSoundTherapyPlay()" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: white;">
+                    <i class="fas fa-play" id="sound-toggle-icon"></i> <span id="sound-toggle-text">${currentLang==='uz'?"Boshlash":currentLang==='ru'?"Старт":"Start"}</span>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+let currentSoundType = 'rain';
+let isSoundPlaying = false;
+
+window.playRelaxSound = function(type) {
+    currentSoundType = type;
+    document.querySelectorAll('.sound-mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-type') === type);
+    });
+    if(isSoundPlaying) {
+        stopSoundTherapy();
+        startSynthesizerSound(currentSoundType);
+    }
+};
+
+window.toggleSoundTherapyPlay = function() {
+    const icon = document.getElementById('sound-toggle-icon');
+    const text = document.getElementById('sound-toggle-text');
+    
+    if(!isSoundPlaying) {
+        startSynthesizerSound(currentSoundType);
+        isSoundPlaying = true;
+        if(icon) icon.className = 'fas fa-pause';
+        if(text) text.innerText = currentLang==='uz'?"To'xtatish":currentLang==='ru'?"Пауза":"Pause";
+    } else {
+        stopSoundTherapy();
+        isSoundPlaying = false;
+        if(icon) icon.className = 'fas fa-play';
+        if(text) text.innerText = currentLang==='uz'?"Boshlash":currentLang==='ru'?"Старт":"Start";
+    }
+};
+
+function startSynthesizerSound(type) {
+    try {
+        if(!activeAudioCtx) {
+            activeAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if(activeAudioCtx.state === 'suspended') activeAudioCtx.resume();
+        
+        stopSoundTherapy();
+        
+        if(type === 'binaural') {
+            const osc = activeAudioCtx.createOscillator();
+            const gain = activeAudioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(432, activeAudioCtx.currentTime);
+            gain.gain.setValueAtTime(0.15, activeAudioCtx.currentTime);
+            osc.connect(gain);
+            gain.connect(activeAudioCtx.destination);
+            osc.start();
+            soundNodes.push(osc, gain);
+        } else {
+            const bufferSize = activeAudioCtx.sampleRate * 2;
+            const buffer = activeAudioCtx.createBuffer(1, bufferSize, activeAudioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            
+            for (let i = 0; i < bufferSize; i++) {
+                let white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                data[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+                data[i] *= 0.11;
+                b6 = white * 0.115926;
+            }
+            
+            const noise = activeAudioCtx.createBufferSource();
+            noise.buffer = buffer;
+            noise.loop = true;
+            
+            const filter = activeAudioCtx.createBiquadFilter();
+            filter.type = type === 'rain' ? 'lowpass' : 'bandpass';
+            filter.frequency.value = type === 'rain' ? 800 : 400;
+            
+            const gain = activeAudioCtx.createGain();
+            gain.gain.setValueAtTime(0.2, activeAudioCtx.currentTime);
+            
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(activeAudioCtx.destination);
+            noise.start();
+            soundNodes.push(noise, filter, gain);
+        }
+    } catch(e) { console.error("Audio error:", e); }
+}
+
+function stopSoundTherapy() {
+    soundNodes.forEach(n => {
+        try { if(n.stop) n.stop(); if(n.disconnect) n.disconnect(); } catch(e){}
+    });
+    soundNodes = [];
+    isSoundPlaying = false;
 }

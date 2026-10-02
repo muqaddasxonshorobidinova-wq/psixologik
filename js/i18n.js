@@ -81,6 +81,9 @@ const translations = {
         // Added later
         play_draw_title: "Qo'rquvni Chizish",
         play_draw_desc: "Ichki qo'rquv va siqilishlarni qog'ozga tushiring.",
+        play_sound_title: "Relaks Ovozli Terapiya",
+        play_sound_desc: "Tabiat va tinchlantiruvchi biogenik seslar bilan dam oling.",
+        print_report: "Hisobotni Chop Etish",
         sos_btn: "SOS",
         sos_warn_title: "SOS Yordam!",
         sos_warn_desc: "Hozir o'zingizni juda yomon his qilyapsizmi yoki xavf ostidamisiz? Bu tugmani bossangiz maktab psixologi va mas'ul shaxslarga anonim xabar boradi.",
@@ -179,6 +182,9 @@ const translations = {
         // Added later
         play_draw_title: "Нарисовать Страх",
         play_draw_desc: "Выразите свои внутренние страхи и тревоги на бумаге.",
+        play_sound_title: "Звуковая терапия",
+        play_sound_desc: "Расслабьтесь с помощью биогенных звуков и частоты 432 Гц.",
+        print_report: "Печать отчета",
         sos_btn: "SOS",
         sos_warn_title: "SOS Помощь!",
         sos_warn_desc: "Вы сейчас чувствуете себя очень плохо или находитесь в опасности? При нажатии на эту кнопку школьный психолог и ответственные лица получат анонимное сообщение.",
@@ -277,6 +283,9 @@ const translations = {
         // Added later
         play_draw_title: "Draw Your Fear",
         play_draw_desc: "Put your internal fears and anxieties on paper.",
+        play_sound_title: "Relax Sound Therapy",
+        play_sound_desc: "Relax your mind with ambient sounds and 432Hz relaxation tones.",
+        print_report: "Print Report",
         sos_btn: "SOS",
         sos_warn_title: "SOS Help!",
         sos_warn_desc: "Are you feeling very bad or in danger right now? Clicking this button will send an anonymous alert to the school psychologist and responsible persons.",

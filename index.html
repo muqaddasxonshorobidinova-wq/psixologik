@@ -240,6 +240,12 @@
                                 <h3 data-i18n="play_draw_title">Qo'rquvni Chizish</h3>
                                 <p data-i18n="play_draw_desc">Ichki qo'rquv va siqilishlarni qog'ozga tushiring.</p>
                             </div>
+                            <!-- Game 5 (Sound Therapy) -->
+                            <div class="game-card glass-panel" onclick="startPlay('sound')">
+                                <div class="game-icon"><i class="fas fa-headphones-alt" style="color: #a855f7;"></i></div>
+                                <h3 data-i18n="play_sound_title">Relaks Ovozli Terapiya</h3>
+                                <p data-i18n="play_sound_desc">Tabiat va tinchlantiruvchi biogenik seslar bilan dam oling.</p>
+                            </div>
                         </div>
                         
                         <div id="play-active-container" style="display: none;">
@@ -262,9 +268,12 @@
                 <!-- 5. Reports Section -->
                 <section id="sec-reports" class="dashboard-section">
                     <div class="glass-panel p-2">
-                        <div class="flex-between mb-2">
+                        <div class="flex-between mb-2" style="flex-wrap: wrap; gap: 1rem;">
                             <h3 data-i18n="reports_title" class="mb-0">Umumiy Psixologik Hisobotlar</h3>
-                            <button class="btn-primary" onclick="generateAIAnalysis()"><i class="fas fa-robot"></i> <span data-i18n="ai_analysis">AI Tahlil</span></button>
+                            <div style="display: flex; gap: 0.75rem;">
+                                <button class="btn-primary" onclick="generateAIAnalysis()"><i class="fas fa-robot"></i> <span data-i18n="ai_analysis">AI Tahlil</span></button>
+                                <button class="btn-primary" onclick="printReportSummary()"><i class="fas fa-print"></i> <span data-i18n="print_report">Hisobotni Chop Etish</span></button>
+                            </div>
                         </div>
                         <div class="reports-grid" id="reports-grid">
                             <!-- Dynamic reports based on classes -->

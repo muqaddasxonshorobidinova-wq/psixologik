@@ -197,9 +197,36 @@ document.addEventListener('DOMContentLoaded', () => {
     window.sendSOSAlert = function() {
         alert("Sizning joylashuvingiz va xabaringiz mas'ul psixologga yuborildi. Iltimos, xotirjamlikni saqlang.");
         closeSOSModal();
+        
+        // Broadcast SOS notification if logged in as admin/teacher
+        const now = new Date().toLocaleTimeString();
+        let sosBanner = document.getElementById('admin-sos-banner');
+        if(!sosBanner) {
+            sosBanner = document.createElement('div');
+            sosBanner.id = 'admin-sos-banner';
+            sosBanner.className = 'glass-panel p-2 mb-2';
+            sosBanner.style.background = 'rgba(239, 68, 68, 0.2)';
+            sosBanner.style.border = '1px solid #ef4444';
+            sosBanner.style.color = '#ef4444';
+            sosBanner.style.borderRadius = '12px';
+            sosBanner.style.display = 'flex';
+            sosBanner.style.justifyContent = 'space-between';
+            sosBanner.style.alignItems = 'center';
+            const homeSec = document.getElementById('sec-home');
+            if(homeSec) homeSec.prepend(sosBanner);
+        }
+        sosBanner.innerHTML = `
+            <div><i class="fas fa-exclamation-triangle" style="font-size: 1.2rem; margin-right: 0.5rem;"></i> <strong>DIQQAT (SOS ALERT):</strong> Anonim o'quvchidan zudlik bilan ruhiy yordam so'raldi (${now})</div>
+            <button class="btn-primary" style="background:#ef4444; color:white; padding: 0.3rem 0.8rem;" onclick="this.parentElement.remove()">Qabul qilindi</button>
+        `;
     }
     window.triggerAlert = function() {
         alert("Xavfli holat qayd etildi! Ota-onaga yoki sinf rahbariga xabar jo'natilmoqda...");
+    }
+
+    // ---- 5. Print & Export Reports ----
+    window.printReportSummary = function() {
+        window.print();
     }
 });
 
